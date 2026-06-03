@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Diamond Press - Create Invoice</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: linear-gradient(135deg, #0f2847 0%, #1a3a6b 50%, #2b5ea7 100%);
+    min-height: 100vh;
+    padding: 16px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+  }
+  .form-container {
+    width: 100%;
+    max-width: 480px;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+    overflow: hidden;
+  }
+  .form-header {
+    background: #1a3a6b;
+    color: #fff;
+    padding: 20px 24px;
+    text-align: center;
+  }
+  .form-header h1 {
+    font-size: 20px;
+    letter-spacing: 1px;
+    margin-bottom: 2px;
+  }
+  .form-header p {
+    font-size: 12px;
+    opacity: 0.8;
+  }
+  .form-header .logo-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .form-header svg { width: 40px; height: 40px; }
+
+  .form-body { padding: 20px 24px; }
+  
+  .section-title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #1a3a6b;
+    border-bottom: 2px solid #1a3a6b;
+    padding-bottom: 4px;
+    margin-bottom: 12px;
+    margin-top: 16px;
+  }
+  .section-title:first-child { margin-top: 0; }
+
+  label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: #444;
+    margin-bottom: 4px;
+  }
+  input, select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1.5px solid #ccc;
+    border-radius: 8px;
+    font-size: 14px;
+    margin-bottom: 12px;
+    transition: border-color 0.2s;
+    background: #fafbfc;
+  }
+  input:focus, select:focus {
+    outline: none;
+    border-color: #1a3a6b;
+    background: #fff;
+  }
+
+  /* Items */
+  .item-card {
+    background: #f3f5f8;
+    border-radius: 10px;
+    padding: 14px;
+    margin-bottom: 10px;
+    position: relative;
+    border: 1px solid #e0e4ea;
+  }
+  .item-card .item-num {
+    position: absolute;
+    top: 8px;
+    right: 10px;
+    background: #1a3a6b;
+    color: #fff;
+    font-size: 10px;
+    font-weight: 700;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .item-row {
+    display: flex;
+    gap: 8px;
+  }
+  .item-row > div { flex: 1; }
+  .item-row input { margin-bottom: 6px; }
+
+  .remove-item {
+    background: #e74c3c;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-size: 11px;
+    cursor: pointer;
+    margin-top: 4px;
+  }
+
+  .add-item-btn {
+    width: 100%;
+    padding: 10px;
+    background: #fff;
+    border: 2px dashed #1a3a6b;
+    border-radius: 10px;
+    color: #1a3a6b;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 6px;
+    transition: background 0.2s;
+  }
+  .add-item-btn:hover { background: #f0f4f9; }
+
+  /* Live Total */
+  .live-total-bar {
+    background: #1a3a6b;
+    color: #fff;
+    border-radius: 10px;
+    padding: 14px 18px;
+    margin-top: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 16px;
+    font-weight: 700;
+  }
+
+  /* Submit */
+  .submit-btn {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #1a3a6b, #2b5ea7);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 16px;
+    letter-spacing: 0.5px;
+    transition: transform 0.1s;
+  }
+  .submit-btn:active { transform: scale(0.98); }
+
+  /* Result */
+  .result-area {
+    display: none;
+    margin-top: 16px;
+    text-align: center;
+  }
+  .result-area.show { display: block; }
+  .result-area .success-msg {
+    background: #d4edda;
+    color: #155724;
+    padding: 14px;
+    border-radius: 10px;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+  .result-area a {
+    display: inline-block;
+    padding: 10px 20px;
+    background: #1a3a6b;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    margin: 4px;
+  }
+  .result-area a.share-btn { background: #25d366; }
+</style>
+</head>
+<body>
+
+<div class="form-container">
+  <div class="form-header">
+    <div class="logo-row">
+      <svg viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="60,4 112,60 60,116 8,60" fill="#fff" opacity="0.2"/>
+        <polygon points="60,14 102,60 60,106 18,60" fill="#fff" opacity="0.3"/>
+        <polygon points="60,24 88,60 60,96 32,60" fill="#fff" opacity="0.15"/>
+        <rect x="39" y="48" width="42" height="40" rx="2" fill="#fff" opacity="0.9"/>
+        <rect x="39" y="44" width="42" height="6" rx="1" fill="#fff" opacity="0.6"/>
+        <path d="M48,44 Q48,34 54,34" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
+        <path d="M72,44 Q72,34 66,34" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
+        <polygon points="60,56 68,65 60,74 52,65" fill="#1a3a6b" opacity="0.7"/>
+      </svg>
+      <div>
+        <h1>DIAMOND PRESS</h1>
+        <p>Create Your Invoice</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="form-body">
+    <div class="section-title">👤 Customer Info</div>
+    <label>Customer Name *</label>
+    <input type="text" id="customerName" placeholder="e.g. Ali Khan" required>
+    <label>Phone Number *</label>
+    <input type="tel" id="customerPhone" placeholder="e.g. 0300-1234567" required>
+    <label>Address (optional)</label>
+    <input type="text" id="customerAddress" placeholder="e.g. Main Bazar, Swabi">
+
+    <div class="section-title">📦 Items</div>
+    <div id="itemsContainer">
+      <div class="item-card" data-index="0">
+        <div class="item-num">1</div>
+        <label>Description</label>
+        <input type="text" class="desc" placeholder="e.g. Wedding Cards">
+        <div class="item-row">
+          <div>
+            <label>Qty</label>
+            <input type="number" class="qty" placeholder="100" min="1">
+          </div>
+          <div>
+            <label>Total Price (Rs.)</label>
+            <input type="number" class="total" placeholder="5000" min="0" oninput="calcTotals()">
+          </div>
+        </div>
+      </div>
+    </div>
+    <button class="add-item-btn" onclick="addItem()">＋ Add Another Item</button>
+
+    <div class="live-total-bar">
+      <span>Grand Total:</span>
+      <span id="liveTotal">Rs. 0</span>
+    </div>
+
+    <button class="submit-btn" onclick="submitInvoice()">📄 Generate Invoice</button>
+
+    <div class="result-area" id="resultArea">
+      <div class="success-msg">✅ Invoice Generated Successfully!</div>
+      <a id="viewLink" href="#" target="_blank">🔗 View Invoice</a>
+      <a id="shareLink" href="#" class="share-btn" target="_blank">📤 Share via WhatsApp</a>
+    </div>
+  </div>
+</div>
+
+<script>
+let itemCount = 1;
+
+function addItem() {
+  itemCount++;
+  const container = document.getElementById('itemsContainer');
+  const card = document.createElement('div');
+  card.className = 'item-card';
+  card.dataset.index = itemCount - 1;
+  card.innerHTML = `
+    <div class="item-num">${itemCount}</div>
+    <label>Description</label>
+    <input type="text" class="desc" placeholder="e.g. Business Cards">
+    <div class="item-row">
+      <div>
+        <label>Qty</label>
+        <input type="number" class="qty" placeholder="100" min="1">
+      </div>
+      <div>
+        <label>Total Price (Rs.)</label>
+        <input type="number" class="total" placeholder="5000" min="0" oninput="calcTotals()">
+      </div>
+    </div>
+    <button class="remove-item" onclick="this.parentElement.remove(); renumber(); calcTotals();">✕ Remove</button>
+  `;
+  container.appendChild(card);
+}
+
+function renumber() {
+  const cards = document.querySelectorAll('.item-card');
+  cards.forEach((card, i) => {
+    card.querySelector('.item-num').textContent = i + 1;
+  });
+  itemCount = cards.length;
+}
+
+function calcTotals() {
+  let grandTotal = 0;
+  document.querySelectorAll('.item-card').forEach(card => {
+    const total = Number(card.querySelector('.total').value) || 0;
+    grandTotal += total;
+  });
+  document.getElementById('liveTotal').textContent = 'Rs. ' + grandTotal.toLocaleString();
+}
+
+function submitInvoice() {
+  const name = document.getElementById('customerName').value.trim();
+  if (!name) { alert('Please enter customer name'); return; }
+
+  const phone = document.getElementById('customerPhone').value.trim();
+  if (!phone) { alert('Please enter phone number'); return; }
+
+  const address = document.getElementById('customerAddress').value.trim();
+  const items = [];
+
+  document.querySelectorAll('.item-card').forEach(card => {
+    const desc = card.querySelector('.desc').value.trim();
+    const qty = Number(card.querySelector('.qty').value) || 0;
+    const total = Number(card.querySelector('.total').value) || 0;
+    if (desc && qty > 0) {
+      items.push({ description: desc, qty: qty, total: total });
+    }
+  });
+
+  if (items.length === 0) { alert('Please add at least one item'); return; }
+
+  const payload = {
+    customer_name: name,
+    customer_phone: phone,
+    customer_address: address,
+    items: items
+  };
+
+  // ══════════════════════════════════════════════════
+  // 🔴 CHANGE THIS URL to your n8n webhook URL
+  // ══════════════════════════════════════════════════
+  const WEBHOOK_URL = 'https://salman01.app.n8n.cloud/webhook/diamond-invoice';
+
+  fetch(WEBHOOK_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  })
+  .then(res => res.text())
+  .then(html => {
+    // Open invoice in new tab
+    const blob = new Blob([html], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+
+    document.getElementById('viewLink').href = url;
+
+    // WhatsApp share
+    const whatsappMsg = encodeURIComponent(
+      `📄 *Diamond Press Invoice*\n\nCustomer: ${name}\nTotal: ${document.getElementById('liveTotal').textContent}\n\nView: ${WEBHOOK_URL}`
+    );
+    document.getElementById('shareLink').href = `https://wa.me/?text=${whatsappMsg}`;
+
+    document.getElementById('resultArea').classList.add('show');
+
+    // Auto open
+    window.open(url, '_blank');
+  })
+  .catch(err => {
+    alert('Error connecting to server. Please check your internet.');
+    console.error(err);
+  });
+}
+</script>
+
+<script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'a05d8527d9a90516',t:'MTc4MDQ3NzM1OQ=='};var a=document.createElement('script');a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
